@@ -1,0 +1,36 @@
+Monitoring Pemakaian Internet dengan BOT Telegram
+1769271140:AAHjBSvw2jLqI1qreaUVOl5bygVoZ1-aJug
+
+Buat schedule dengan nama TRAFIK-UP
+:local namaINT "NAMA INTERFACE";
+:local tx [/interface get value-name="tx-byte" [find name="$namaINT"]];
+:local txMB ($tx / 1024 / 1024 / 1024);
+/system sche set comment=$txMB [find name="TRAFIK-UP"]
+
+:local hh $host
+:local bot "1769271140:AAHjBSvw2jLqI1qreaUVOl5bygVoZ1-aJug";
+:local chatID "1769271140";
+:local datetime "Tanggal:%20$[/system clock get date]%0A%20Jam:%20$[/system clock get time]"
+/tool fetch url=https://api.telegram.org/bot$bot/sendmessage\?chat_id=$chatID&text=\E2\9C\85$datetime%0ARouter:%20$hh%20ON" keep-result=no;
+
+:local bot "1769271140:AAHjBSvw2jLqI1qreaUVOl5bygVoZ1-aJug";
+:local chatID "1769271140";
+:local varDate;
+:local varDay;
+:set varDate [/system clock get date];
+:set varDay [:pick $varDate 4 6];
+:local totalUP [/system sche get [find name="INTERNET"] comment];
+:local totalDOWN [/system sche get [find name="INTERNET"] comment];
+:local total ($totalUP + $totalDOWN);
+/tool fetch url="https://api.telegram.org/bot$bot/sendmessage\?chat_id=$chatID&text=\E2\9C\85 MONITORING Pemakaian internet %0A\E2\9C\85 Tanggal $varDate %0A\E2\9C\85 DOWNLOAD: $totalDOWN GB%0A\E2\9C\85 UPLOAD: $totalUP GB %0A\E2\9C\85 TOTAL: $total GB" keep-result=no;
+}
+
+:local varDate;
+:local varDay;
+:set varDate [/system clock get date];
+:set varDay [:pick $varDate 4 6];
+:if ($varDay = "01") do={ 
+/interface reset [find name=pppoe-indihome];
+/system schedule set comment="0" [find name="TRAFIK-DOWN"];
+/system schedule set comment="0" [find name="TRAFIK-UP"];
+}
