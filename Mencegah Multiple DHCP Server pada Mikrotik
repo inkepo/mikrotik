@@ -3,3 +3,17 @@
 add action=accept chain=forward dst-port=67 ip-protocol=udp mac-protocol=ip out-interface=ether2 src-port=68
 add action=accept chain=forward dst-port=67 ip-protocol=udp mac-protocol=ip out-interface=ether3 src-port=68
 add action=drop chain=forward dst-port=67 ip-protocol=udp mac-protocol=ip src-port=68
+
+/dhcp-server alerts
+masukkan di on alert
+:local output
+:local bot "BOT";
+:local chatID "CHAT";
+:local mikrotik [/system identity get name] ;
+:foreach activeIndex in=[/ip dhcp-server alert find comment=lan1] do={
+:local interface [/ip dhcp-server alert get value-name="interface" $activeIndex];
+:local valid [/ip dhcp-server alert get value-name="valid" $activeIndex];
+:local unk [/ip dhcp-server alert get value-name="unknown-server" $activeIndex];
+:log warning "Nama Mikrotik: $mikrotikNama interface: $interface \nMAC VALID: $valid \nMAC ROUGE$unk";
+/tool fetch url="https://api.telegram.org/bot$bot/sendmessage\?chat_id=$chatID&text=\E2\9C\85 ROTER: $mikrotik %0A\E2\9C\85 Interface: $interface %0A\E2\9C\85 Valid MAC: $valid %0A\E2\9C\85 MAC Rouge: $unk" keep-result=no
+}
