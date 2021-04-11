@@ -1,0 +1,4 @@
+SCRIPT DNS CACHE FLUSH.txt
+Masukkan di script atau di schedular
+
+/ip dns cache flush
